@@ -3,7 +3,10 @@
 import { useState } from "react";
 
 
-export default function PricingButton({ plan }) {
+export default function PricingButton({ 
+  plan, 
+  contractorId 
+}) {
 
 
   const [loading, setLoading] = useState(false);
@@ -17,37 +20,77 @@ export default function PricingButton({ plan }) {
 
 
 
-    const response = await fetch(
-      "/api/stripe/checkout",
-      {
-        method: "POST",
+    try {
 
-        headers: {
-          "Content-Type": "application/json",
-        },
 
-        body: JSON.stringify({
-          plan,
-        }),
+      const response = await fetch(
+
+        "/api/stripe/checkout",
+
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type": "application/json",
+
+          },
+
+
+          body: JSON.stringify({
+
+            plan,
+
+            contractorId,
+
+          }),
+
+
+        }
+
+      );
+
+
+
+      const data = await response.json();
+
+
+
+      if (data.url) {
+
+
+        window.location.href = data.url;
+
+
+      } else {
+
+
+        alert(
+          data.error || "Unable to start checkout"
+        );
+
+
+        setLoading(false);
+
 
       }
-    );
 
 
 
-    const data = await response.json();
+    } catch (error) {
 
 
+      console.log(error);
 
-    if (data.url) {
 
-      window.location.href = data.url;
+      alert(
+        "Payment error. Please try again."
+      );
 
-    } else {
-
-      alert("Unable to start checkout");
 
       setLoading(false);
+
 
     }
 
@@ -65,11 +108,13 @@ export default function PricingButton({ plan }) {
 
       disabled={loading}
 
-      className="w-full rounded-xl bg-black px-6 py-4 font-semibold text-white hover:opacity-80"
+      className="w-full rounded-xl bg-black px-6 py-4 font-semibold text-white hover:opacity-80 disabled:opacity-50"
 
     >
 
-      {loading ? "Loading..." : "Get Started"}
+      {loading 
+        ? "Loading..." 
+        : "Get Started"}
 
     </button>
 
