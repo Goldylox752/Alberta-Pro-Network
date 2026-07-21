@@ -1,4 +1,4 @@
-import Link from "next/link";
+import PricingButton from "@/components/PricingButton";
 
 
 export const metadata = {
@@ -17,6 +17,7 @@ const plans = [
   {
     name: "Free Listing",
     price: "$0",
+    plan: null,
     features: [
       "Business profile",
       "Category listing",
@@ -29,6 +30,7 @@ const plans = [
   {
     name: "Featured Contractor",
     price: "$99/month",
+    plan: "featured",
     features: [
       "Top placement in search",
       "Verified badge",
@@ -41,6 +43,7 @@ const plans = [
   {
     name: "Lead Partner",
     price: "$499/month",
+    plan: "lead_partner",
     features: [
       "Priority placement",
       "Exclusive leads",
@@ -112,7 +115,6 @@ export default function PricingPage() {
 
               <ul className="mt-6 space-y-3 text-gray-600">
 
-
                 {plan.features.map((feature) => (
 
                   <li key={feature}>
@@ -123,30 +125,41 @@ export default function PricingPage() {
 
                 ))}
 
-
               </ul>
 
 
 
+              <div className="mt-8">
 
-              <Link
 
-                href="/submit"
+                {plan.plan ? (
 
-                className="mt-8 block rounded-xl bg-black px-6 py-4 text-center font-semibold text-white"
+                  <PricingButton plan={plan.plan} />
 
-              >
+                ) : (
 
-                Get Started
+                  <a
 
-              </Link>
+                    href="/submit"
+
+                    className="block rounded-xl bg-black px-6 py-4 text-center font-semibold text-white"
+
+                  >
+
+                    Create Free Listing
+
+                  </a>
+
+                )}
+
+
+              </div>
 
 
 
             </div>
 
           ))}
-
 
 
         </div>
