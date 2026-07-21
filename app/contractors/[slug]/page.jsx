@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,7 +13,9 @@ async function getContractor(slug) {
     data: contractor,
     error
   } = await supabase
+
     .from("contractors")
+
     .select(`
       id,
       business_name,
@@ -28,7 +31,9 @@ async function getContractor(slug) {
       verified,
       featured
     `)
+
     .eq("slug", slug)
+
     .single();
 
 
@@ -46,9 +51,17 @@ async function getContractor(slug) {
 
 
 
+
+
 export async function generateMetadata({ params }) {
 
-  const contractor = await getContractor(params.slug);
+
+  const { slug } = await params;
+
+
+  const contractor =
+    await getContractor(slug);
+
 
 
   if (!contractor) {
@@ -62,13 +75,15 @@ export async function generateMetadata({ params }) {
   }
 
 
+
   return {
 
-    title: `${contractor.business_name} | Alberta Pro Network`,
+    title:
+      `${contractor.business_name} | ${contractor.category} Alberta`,
 
     description:
       contractor.description ||
-      `Contact ${contractor.business_name} in ${contractor.city}, Alberta.`
+      `${contractor.business_name} provides ${contractor.category} services in ${contractor.city}, Alberta.`
 
   };
 
@@ -76,10 +91,16 @@ export async function generateMetadata({ params }) {
 
 
 
+
+
 export default async function ContractorPage({ params }) {
 
 
-  const contractor = await getContractor(params.slug);
+  const { slug } = await params;
+
+
+  const contractor =
+    await getContractor(slug);
 
 
 
@@ -88,6 +109,7 @@ export default async function ContractorPage({ params }) {
     notFound();
 
   }
+
 
 
 
@@ -100,11 +122,18 @@ export default async function ContractorPage({ params }) {
 
 
         <Link
+
           href="/contractors"
+
           className="text-sm text-gray-500 hover:text-black"
+
         >
+
           ← Back to Contractors
+
         </Link>
+
+
 
 
 
@@ -116,9 +145,13 @@ export default async function ContractorPage({ params }) {
 
             {contractor.logo && (
 
-              <img
+              <Image
 
                 src={contractor.logo}
+
+                width={128}
+
+                height={128}
 
                 alt={contractor.business_name}
 
@@ -130,10 +163,12 @@ export default async function ContractorPage({ params }) {
 
 
 
+
+
             <div>
 
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
 
 
                 <h1 className="text-4xl font-bold">
@@ -148,13 +183,28 @@ export default async function ContractorPage({ params }) {
 
                   <span className="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
 
-                    Verified
+                    ✓ Verified
 
                   </span>
 
                 )}
 
+
+
+                {contractor.featured && (
+
+                  <span className="rounded-full bg-black px-3 py-1 text-sm text-white">
+
+                    Featured
+
+                  </span>
+
+                )}
+
+
+
               </div>
+
 
 
 
@@ -166,6 +216,7 @@ export default async function ContractorPage({ params }) {
 
 
 
+
               <p className="text-gray-500">
 
                 {contractor.city}, {contractor.province}
@@ -173,10 +224,12 @@ export default async function ContractorPage({ params }) {
               </p>
 
 
+
             </div>
 
 
           </div>
+
 
 
 
@@ -206,6 +259,8 @@ export default async function ContractorPage({ params }) {
 
 
 
+
+
           <div className="mt-10 grid gap-4 md:grid-cols-3">
 
 
@@ -227,6 +282,7 @@ export default async function ContractorPage({ params }) {
 
 
 
+
             {contractor.website && (
 
               <a
@@ -234,6 +290,8 @@ export default async function ContractorPage({ params }) {
                 href={contractor.website}
 
                 target="_blank"
+
+                rel="noopener noreferrer"
 
                 className="rounded-xl border px-6 py-4 text-center font-semibold"
 
@@ -247,9 +305,12 @@ export default async function ContractorPage({ params }) {
 
 
 
+
+
+
             <Link
 
-              href="/submit"
+              href={`/request-quote?service=${contractor.category}&city=${contractor.city}`}
 
               className="rounded-xl border px-6 py-4 text-center font-semibold"
 
@@ -260,7 +321,9 @@ export default async function ContractorPage({ params }) {
             </Link>
 
 
+
           </div>
+
 
 
 
@@ -284,7 +347,7 @@ export default async function ContractorPage({ params }) {
 
             <p className="mt-3 text-gray-300">
 
-              This business is promoted on Alberta Pro Network.
+              This company is a premium Alberta Pro Network partner.
 
             </p>
 
