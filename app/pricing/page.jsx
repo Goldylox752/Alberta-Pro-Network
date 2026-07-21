@@ -56,7 +56,14 @@ const plans = [
 
 
 
-export default function PricingPage() {
+export default async function PricingPage({ searchParams }) {
+
+
+  const params = await searchParams;
+
+
+  const contractorId = params?.contractor;
+
 
 
   return (
@@ -74,11 +81,25 @@ export default function PricingPage() {
         </h1>
 
 
+
         <p className="mx-auto mt-5 max-w-2xl text-lg text-gray-600">
 
           Get discovered by Alberta homeowners searching for trusted local professionals.
 
         </p>
+
+
+
+        {!contractorId && (
+
+          <div className="mx-auto mt-6 max-w-xl rounded-xl bg-yellow-100 p-4 text-yellow-800">
+
+            Submit your business first to activate contractor upgrades.
+
+          </div>
+
+        )}
+
 
 
 
@@ -113,6 +134,7 @@ export default function PricingPage() {
 
 
 
+
               <ul className="mt-6 space-y-3 text-gray-600">
 
                 {plan.features.map((feature) => (
@@ -129,12 +151,19 @@ export default function PricingPage() {
 
 
 
+
               <div className="mt-8">
 
 
                 {plan.plan ? (
 
-                  <PricingButton plan={plan.plan} />
+                  <PricingButton
+
+                    plan={plan.plan}
+
+                    contractorId={contractorId}
+
+                  />
 
                 ) : (
 
