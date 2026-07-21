@@ -1,17 +1,21 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 
-async function getContractors() {
+async function getContractors(searchParams) {
+
 
   const supabase = await createClient();
 
-  const {
-    data: contractors,
-    error
-  } = await supabase
+
+
+  let query = supabase
+
     .from("contractors")
+
     .select(`
+
       id,
       business_name,
       slug,
@@ -22,14 +26,81 @@ async function getContractors() {
       logo,
       verified,
       featured
+
     `)
-    .order("featured", { ascending: false });
+
+    .order("featured", {
+      ascending: false
+    })
+
+    .order("business_name");
+
+
+
+
+  if (searchParams?.search) {
+
+    query = query.ilike(
+
+      "business_name",
+
+      `%${searchParams.search}%`
+
+    );
+
+  }
+
+
+
+  if (searchParams?.city) {
+
+    query = query.eq(
+
+      "city",
+
+      searchParams.city
+
+    );
+
+  }
+
+
+
+
+  if (searchParams?.category) {
+
+    query = query.eq(
+
+      "category",
+
+      searchParams.category
+
+    );
+
+  }
+
+
+
+
+  const {
+
+    data: contractors,
+
+    error
+
+  } = await query;
+
+
 
 
   if (error) {
+
     console.log(error);
+
     return [];
+
   }
+
 
 
   return contractors || [];
@@ -38,21 +109,34 @@ async function getContractors() {
 
 
 
+
+
 export const metadata = {
 
-  title: "Alberta Contractors | Alberta Pro Network",
+  title:
+    "Alberta Contractors Directory | Alberta Pro Network",
 
   description:
-    "Browse trusted Alberta contractors for roofing, plumbing, electrical, construction and home services."
+    "Find trusted Alberta contractors for roofing, plumbing, electrical, construction and home services."
 
 };
 
 
 
-export default async function ContractorsPage() {
 
 
-  const contractors = await getContractors();
+export default async function ContractorsPage({
+  searchParams
+}) {
+
+
+  const params = await searchParams;
+
+
+  const contractors =
+    await getContractors(params);
+
+
 
 
 
@@ -65,13 +149,106 @@ export default async function ContractorsPage() {
 
 
         <h1 className="text-4xl font-bold">
+
           Alberta Contractors
+
         </h1>
 
 
+
         <p className="mt-4 text-gray-600">
+
           Find trusted professionals across Alberta.
+
         </p>
+
+
+
+
+
+        <form
+
+          className="mt-8 grid gap-4 rounded-2xl border p-6 md:grid-cols-3"
+
+        >
+
+
+          <input
+
+            name="search"
+
+            placeholder="Search business"
+
+            className="rounded-xl border px-4 py-3"
+
+          />
+
+
+
+          <input
+
+            name="city"
+
+            placeholder="City"
+
+            className="rounded-xl border px-4 py-3"
+
+          />
+
+
+
+          <select
+
+            name="category"
+
+            className="rounded-xl border px-4 py-3"
+
+          >
+
+            <option value="">
+              All Categories
+            </option>
+
+            <option>
+              Roofing
+            </option>
+
+            <option>
+              Plumbing
+            </option>
+
+            <option>
+              Electrical
+            </option>
+
+            <option>
+              General Contractor
+            </option>
+
+            <option>
+              Landscaping
+            </option>
+
+          </select>
+
+
+
+          <button
+
+            className="rounded-xl bg-black px-5 py-3 font-bold text-white md:col-span-3"
+
+          >
+
+            Search
+
+          </button>
+
+
+        </form>
+
+
+
+
 
 
 
@@ -83,26 +260,43 @@ export default async function ContractorsPage() {
 
             <div className="rounded-xl border p-6">
 
+
               <h2 className="text-xl font-bold">
+
                 No contractors listed yet
+
               </h2>
 
 
+
               <p className="mt-2 text-gray-600">
+
                 Be the first business to join Alberta Pro Network.
+
               </p>
 
 
+
+
               <Link
+
                 href="/submit"
+
                 className="mt-5 inline-block rounded-lg bg-black px-5 py-3 text-white"
+
               >
+
                 Add Your Business
+
               </Link>
+
 
             </div>
 
           )}
+
+
+
 
 
 
@@ -115,16 +309,21 @@ export default async function ContractorsPage() {
 
               href={`/contractors/${contractor.slug}`}
 
-              className="rounded-2xl border p-6 hover:shadow-lg transition"
+              className="rounded-2xl border p-6 transition hover:shadow-lg"
 
             >
 
 
+
               {contractor.logo && (
 
-                <img
+                <Image
 
                   src={contractor.logo}
+
+                  width={64}
+
+                  height={64}
 
                   alt={contractor.business_name}
 
@@ -133,6 +332,9 @@ export default async function ContractorsPage() {
                 />
 
               )}
+
+
+
 
 
 
@@ -150,13 +352,17 @@ export default async function ContractorsPage() {
                 {contractor.verified && (
 
                   <span className="text-green-600">
+
                     ✓
+
                   </span>
 
                 )}
 
 
+
               </div>
+
 
 
 
@@ -168,6 +374,7 @@ export default async function ContractorsPage() {
 
 
 
+
               <p className="text-sm text-gray-500">
 
                 {contractor.city}, {contractor.province}
@@ -176,7 +383,8 @@ export default async function ContractorsPage() {
 
 
 
-              <p className="mt-4 text-gray-600 line-clamp-3">
+
+              <p className="mt-4 line-clamp-3 text-gray-600">
 
                 {contractor.description}
 
@@ -184,13 +392,15 @@ export default async function ContractorsPage() {
 
 
 
+
+
               {contractor.featured && (
 
-                <div className="mt-4 inline-block rounded-full bg-black px-3 py-1 text-xs text-white">
+                <span className="mt-4 inline-block rounded-full bg-black px-3 py-1 text-xs text-white">
 
                   Featured Contractor
 
-                </div>
+                </span>
 
               )}
 
