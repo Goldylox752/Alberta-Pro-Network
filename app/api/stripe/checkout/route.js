@@ -14,11 +14,14 @@ export async function POST(request) {
   try {
 
 
-    const { plan } = await request.json();
+    const {
+      plan,
+      contractorId
+    } = await request.json();
 
 
 
-    const prices = {
+    const plans = {
 
 
       featured: {
@@ -43,19 +46,40 @@ export async function POST(request) {
 
 
 
-    const selectedPlan = prices[plan];
+    const selectedPlan = plans[plan];
 
 
 
     if (!selectedPlan) {
 
       return NextResponse.json(
+
         {
           error: "Invalid plan"
         },
+
         {
           status: 400
         }
+
+      );
+
+    }
+
+
+
+    if (!contractorId) {
+
+      return NextResponse.json(
+
+        {
+          error: "Missing contractor ID"
+        },
+
+        {
+          status: 400
+        }
+
       );
 
     }
@@ -63,10 +87,11 @@ export async function POST(request) {
 
 
 
-
     const session = await stripe.checkout.sessions.create({
 
+
       mode: "subscription",
+
 
 
       line_items: [
@@ -76,6 +101,7 @@ export async function POST(request) {
           price_data: {
 
             currency: "cad",
+
 
             product_data: {
 
@@ -104,6 +130,18 @@ export async function POST(request) {
 
 
 
+
+      metadata: {
+
+        contractorId,
+
+        plan
+
+      },
+
+
+
+
       success_url:
 
         `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
@@ -115,7 +153,9 @@ export async function POST(request) {
         `${process.env.NEXT_PUBLIC_SITE_URL}/pricing`
 
 
+
     });
+
 
 
 
@@ -134,10 +174,11 @@ export async function POST(request) {
     console.log(error);
 
 
+
     return NextResponse.json(
 
       {
-        error: "Stripe checkout failed"
+        error: "Checkout failed"
       },
 
       {
@@ -148,5 +189,6 @@ export async function POST(request) {
 
 
   }
+
 
 }
